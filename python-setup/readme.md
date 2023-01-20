@@ -32,6 +32,8 @@ Where env_name is the name of your virtual environment.
 To activate the virtual environment, run the activate script:
 ```
 source env_name/bin/activate
+```
+
 For windows :
 
 ```
