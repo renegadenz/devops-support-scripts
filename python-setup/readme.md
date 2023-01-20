@@ -1,4 +1,8 @@
-# Installing Python
+# Basic Python setup on local machine
+
+This is for simple setup of python on local machine. 
+
+## Installing Python
 
 ```
 ./install_python.sh
@@ -7,13 +11,13 @@
 This is will install python 3.10.4 on local machine
 
 
-# Creating a Python Virtual Environment
+## Creating a Python Virtual Environment
 A virtual environment is a tool that helps to keep dependencies required by different projects separate by creating isolated python virtual environments for them. This is useful in case one project depends on a specific version of a library, while another project requires a different version.
 
 To create a Python virtual environment, you can use the venv module that is included in the Python standard library.
 
 
-## Steps
+### Steps
 1. Open a terminal or command prompt.
 
 2. Navigate to the directory where you want to create your virtual environment.
