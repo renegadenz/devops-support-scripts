@@ -1,5 +1,5 @@
 # DevOps Support Scripts
-This repository, created by James Mead (GitHub username: renegadenz), contains a collection of scripts that can be used to streamline various DevOps tasks on AWS. The scripts are organized into separate subdirectories, each with its own documentation and usage instructions. Here's a brief overview of the scripts:
+This repository, created by James Mead (DevOps Engineer), contains a collection of scripts that can be used to streamline various DevOps tasks on AWS. The scripts are organized into separate subdirectories, each with its own documentation and usage instructions. Here's a brief overview of the scripts:
 
 * instance-selector: A script for connecting to an EC2 instance using AWS Systems Manager Session Manager.
 * deploy-cloudformation: A script for deploying CloudFormation stacks with a separate variables file using Docker.
