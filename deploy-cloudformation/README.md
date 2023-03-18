@@ -42,5 +42,3 @@ You can also create a bash alias for the docker run command to make it easier to
 alias deploy-cfn='docker run -it --rm -v ~/.aws:/root/.aws -v $(pwd):/app/templates deploy-cloudformation'
 ```
 With this alias set up, you can run the deploy-cloudformation container by typing deploy-cfn followed by the script arguments.
-
-Conclusion
