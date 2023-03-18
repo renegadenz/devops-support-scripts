@@ -9,8 +9,5 @@ This repository, created by James Mead (DevOps Engineer), contains a collection 
 
 To use these scripts, navigate to the appropriate subdirectory and follow the instructions in the README file. Be sure to read the documentation and modify the scripts as necessary to suit your specific needs.
 
-
-I hope this summary provides a useful overview of the scripts in your repository. If you have any questions or need further assistance, feel free to reach out.
-
 # Notes
 I will add more scripts over time.
