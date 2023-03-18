@@ -16,8 +16,9 @@ Create a Dockerfile with the provided configuration.
 
 ## Setup
 Build the Docker image:
-
+```
 docker build -t session_manager .
+```
 Add the following function to your ~/.bash_profile or ~/.bashrc file:
 
 ```
