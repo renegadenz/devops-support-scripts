@@ -15,7 +15,8 @@ Modify the script as necessary to set the path to the AWS CLI executable and the
 Make the script executable by running the following command: chmod +x rotate-iam-keys.sh.
 Test the script by running it manually: ./rotate-iam-keys.sh. Verify that it creates a new access key, disables the old access key, and prints the information for the new access key.
 Set up a cron job to run the script automatically. For example, to run the script every three months, you can use the following cron expression: 
-``0 0 1 */3 * /path/to/rotate-iam-keys.sh.
+```
+0 0 1 */3 * /path/to/rotate-iam-keys.sh.
 ```
 Make sure to replace /path/to with the actual path to the script on your local machine.
 Note that this script rotates the access keys for a single IAM user. If you need to rotate the access keys for multiple users, you'll need to modify the script or create separate scripts for each user.
