@@ -22,4 +22,11 @@ for ACCESS_KEY in $ACCESS_KEYS; do
   echo "AccessKeyId: $(echo $NEW_KEY | jq -r '.AccessKeyId')"
   echo "SecretAccessKey: $(echo $NEW_KEY | jq -r '.SecretAccessKey')"
   echo ""
+
+  # Update the default profile with the new access key
+  $AWS_CLI configure set aws_access_key_id "$(echo $NEW_KEY | jq -r '.AccessKeyId')" --profile default
+  $AWS_CLI configure set aws_secret_access_key "$(echo $NEW_KEY | jq -r '.SecretAccessKey')" --profile default
+
+  # Exit after updating the default profile with the first new access key
+  break
 done
