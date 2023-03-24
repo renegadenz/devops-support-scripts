@@ -8,6 +8,7 @@ Before you can deploy the lambda_function.py script, you need to have the follow
 * The AWS CLI (Command Line Interface) installed on your machine
 * The AWS SAM CLI (Command Line Interface) installed on your machine
 * Basic knowledge of AWS Lambda and AWS SAM
+
 # Deployment
 
 To deploy the lambda_function.py script using AWS SAM, follow these steps:
