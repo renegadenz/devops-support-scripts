@@ -4,10 +4,10 @@ The lambda_function.py script is a Python script that can be deployed as an AWS 
 ## Prerequisites
 Before you can deploy the lambda_function.py script, you need to have the following:
 
-An AWS account (stating the obvious here)
-The AWS CLI (Command Line Interface) installed on your machine
-The AWS SAM CLI (Command Line Interface) installed on your machine
-Basic knowledge of AWS Lambda and AWS SAM
+* An AWS account (stating the obvious here)
+* The AWS CLI (Command Line Interface) installed on your machine
+* The AWS SAM CLI (Command Line Interface) installed on your machine
+* Basic knowledge of AWS Lambda and AWS SAM
 # Deployment
 
 To deploy the lambda_function.py script using AWS SAM, follow these steps:
