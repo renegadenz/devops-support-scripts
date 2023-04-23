@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Check if make is installed
-if ! command -v make &> /dev/null
+# Check if make and gcc are installed
+if ! command -v make &> /dev/null || ! command -v gcc &> /dev/null
 then
-    echo "make is not installed. Please install make and try again."
+    echo "make and gcc are required. Please install build-essential package and try again."
     exit 1
 fi
 
