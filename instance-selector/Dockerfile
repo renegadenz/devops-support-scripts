@@ -11,6 +11,11 @@ RUN apt-get update && \
 # Install boto3
 RUN pip install boto3
 
+# Install AWS Session Manager plugin
+RUN curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "session-manager-plugin.deb" && \
+    dpkg -i session-manager-plugin.deb && \
+    rm session-manager-plugin.deb
+
 # Create a directory for the script
 RUN mkdir /app
 WORKDIR /app
