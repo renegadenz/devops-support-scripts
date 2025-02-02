@@ -1,6 +1,8 @@
 import boto3
 import sys
 
+AWS_REGION = "ap-southeast-2"  # Pre-set AWS region
+
 def list_instances(ec2_client):
     """Retrieve and display all instances with their IDs and names."""
     instances = []
@@ -17,10 +19,10 @@ def list_instances(ec2_client):
             instances.append((instance_id, name, state))
     
     if not instances:
-        print("No EC2 instances found.")
+        print("No EC2 instances found in the region.")
         sys.exit(1)
 
-    print("\nAvailable EC2 Instances:")
+    print("\nAvailable EC2 Instances in", AWS_REGION)
     for i, (instance_id, name, state) in enumerate(instances, start=1):
         print(f"{i}. {instance_id} ({name}) - {state}")
     
@@ -60,10 +62,10 @@ def main():
         sys.exit(1)
 
     profile = profiles[profile_choice]
-    print(f"\n🔹 Using profile: {profile}")
+    print(f"\n🔹 Using profile: {profile} in region {AWS_REGION}")
 
-    # Create session with selected profile
-    session = boto3.Session(profile_name=profile)
+    # Create session with selected profile and fixed region
+    session = boto3.Session(profile_name=profile, region_name=AWS_REGION)
     ec2_client = session.client('ec2')
 
     # List and choose instance
