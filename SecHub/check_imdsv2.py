@@ -1,81 +1,39 @@
 import boto3
-import csv
-import os
+import sys
 
-# Set AWS profile (Modify as needed)
-AWS_PROFILE = "your-profile-name"  # Change this to your AWS profile name
-os.environ["AWS_PROFILE"] = AWS_PROFILE
+def list_instances_imdsv2_status(region='ap-southeast-2', profile=None):
+    # Use specified profile or default if not provided
+    session = boto3.Session(profile_name=profile) if profile else boto3.Session()
+    ec2 = session.client('ec2', region_name=region)
 
-# AWS Region
-REGION = "ap-southeast-2"  # Change to your AWS region
+    try:
+        response = ec2.describe_instances()
+    except Exception as e:
+        print(f"Error fetching EC2 instances: {e}")
+        sys.exit(1)
 
-# Initialize AWS Clients
-securityhub_client = boto3.client("securityhub", region_name=REGION)
-ec2_client = boto3.client("ec2", region_name=REGION)
+    instances = []
 
-def get_securityhub_findings():
-    """Fetch Security Hub findings for EC2 IMDSv2 compliance (EC2.8)."""
-    findings = []
-    paginator = securityhub_client.get_paginator("get_findings")
-    pages = paginator.paginate(
-        Filters={
-            "Title": [{"Value": "[EC2.8] EC2 instances should use Instance Metadata Service Version 2 (IMDSv2)", "Comparison": "EQUALS"}]
-        }
-    )
-    
-    for page in pages:
-        for finding in page["Findings"]:
-            instance_id = None
-            if "Resources" in finding and finding["Resources"]:
-                instance_id = finding["Resources"][0]["Id"].split("/")[-1]
-            findings.append({
-                "FindingId": finding["Id"],
-                "InstanceId": instance_id,
-                "Status": finding["Compliance"]["Status"],
-                "Severity": finding["Severity"]["Label"]
+    for reservation in response['Reservations']:
+        for instance in reservation['Instances']:
+            instance_id = instance['InstanceId']
+            imds_v2_required = instance.get('MetadataOptions', {}).get('HttpTokens') == 'required'
+
+            # Get the Name tag if it exists
+            name_tag = next((tag['Value'] for tag in instance.get('Tags', []) if tag['Key'] == 'Name'), 'N/A')
+
+            instances.append({
+                "Instance ID": instance_id,
+                "Instance Name": name_tag,
+                "IMDSv2 Enabled": "Yes" if imds_v2_required else "No"
             })
-    
-    return findings
 
-def get_non_compliant_ec2_instances():
-    """Fetch EC2 instances that allow IMDSv1 (not enforcing IMDSv2)."""
-    non_compliant_instances = []
-    
-    response = ec2_client.describe_instances(
-        Filters=[{"Name": "metadata-options.http-tokens", "Values": ["optional"]}]
-    )
-
-    for reservation in response["Reservations"]:
-        for instance in reservation["Instances"]:
-            non_compliant_instances.append({
-                "InstanceId": instance["InstanceId"],
-                "HttpTokens": instance["MetadataOptions"]["HttpTokens"]
-            })
-    
-    return non_compliant_instances
-
-def save_to_csv(data, filename):
-    """Save the findings and EC2 instances data to a CSV file."""
-    if not data:
-        print(f"No data to write for {filename}")
-        return
-
-    keys = data[0].keys()
-    with open(filename, "w", newline="") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=keys)
-        writer.writeheader()
-        writer.writerows(data)
-
-    print(f"Results saved to {filename}")
+    # Print results
+    print(f"{'Instance ID':<20}{'Instance Name':<30}{'IMDSv2 Enabled':<15}")
+    print("=" * 65)
+    for instance in instances:
+        print(f"{instance['Instance ID']:<20}{instance['Instance Name']:<30}{instance['IMDSv2 Enabled']:<15}")
 
 if __name__ == "__main__":
-    print(f"Using AWS Profile: {AWS_PROFILE}")
-
-    securityhub_findings = get_securityhub_findings()
-    ec2_findings = get_non_compliant_ec2_instances()
-
-    # Save results to CSV
-    save_to_csv(securityhub_findings, "securityhub_ec2_imdsv2_findings.csv")
-    save_to_csv(ec2_findings, "ec2_non_compliant_instances.csv")
-
-    print("Script execution completed.")
+    profile = input("Enter AWS profile name (leave blank for default): ").strip()
+    list_instances_imdsv2_status(profile=profile if profile else None)
