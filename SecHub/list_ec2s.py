@@ -4,7 +4,7 @@ import csv
 
 def list_ec2_instances_using_resource_explorer(region='ap-southeast-2', profile=None):
     """Retrieve EC2 instance details (ID and Name tag) using AWS Resource Explorer."""
-    
+
     # Initialize AWS session with the selected profile
     try:
         session = boto3.Session(profile_name=profile) if profile else boto3.Session()
@@ -14,8 +14,8 @@ def list_ec2_instances_using_resource_explorer(region='ap-southeast-2', profile=
         sys.exit(1)
 
     try:
-        response = resource_explorer.search_resources(
-            QueryString="service:ec2",
+        response = resource_explorer.search(
+            QueryString="service:ec2 ResourceType:ec2:instance",
             MaxResults=50  # Adjust if needed
         )
     except Exception as e:
