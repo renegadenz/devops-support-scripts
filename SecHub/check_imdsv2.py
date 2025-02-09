@@ -1,15 +1,40 @@
 import boto3
 import sys
 
-def list_instances_imdsv2_status(region='ap-southeast-2', profile=None):
-    # Use specified profile or default if not provided
-    session = boto3.Session(profile_name=profile) if profile else boto3.Session()
-    ec2 = session.client('ec2', region_name=region)
+AWS_REGION = "ap-southeast-2"  # Set your default region
+
+def select_aws_profile():
+    """Lists available AWS profiles and allows the user to select one."""
+    session = boto3.Session()
+    profiles = session.available_profiles
+
+    if not profiles:
+        print("❌ No AWS profiles found. Configure profiles using `aws configure`.")
+        sys.exit(1)
+
+    print("\n🔹 Available AWS Profiles:")
+    for i, profile in enumerate(profiles, start=1):
+        print(f"{i}. {profile}")
+
+    try:
+        profile_choice = int(input("\nSelect a profile (number): ")) - 1
+        if profile_choice not in range(len(profiles)):
+            raise ValueError
+    except ValueError:
+        print("❌ Invalid selection. Please enter a valid number.")
+        sys.exit(1)
+
+    return profiles[profile_choice]
+
+def list_instances_imdsv2_status(profile, region=AWS_REGION):
+    """Lists EC2 instances and checks if IMDSv2 is enabled."""
+    session = boto3.Session(profile_name=profile, region_name=region)
+    ec2 = session.client('ec2')
 
     try:
         response = ec2.describe_instances()
     except Exception as e:
-        print(f"Error fetching EC2 instances: {e}")
+        print(f"❌ Error fetching EC2 instances: {e}")
         sys.exit(1)
 
     instances = []
@@ -29,11 +54,12 @@ def list_instances_imdsv2_status(region='ap-southeast-2', profile=None):
             })
 
     # Print results
+    print(f"\n🔹 Using profile: {profile} in region {region}\n")
     print(f"{'Instance ID':<20}{'Instance Name':<30}{'IMDSv2 Enabled':<15}")
     print("=" * 65)
     for instance in instances:
         print(f"{instance['Instance ID']:<20}{instance['Instance Name']:<30}{instance['IMDSv2 Enabled']:<15}")
 
 if __name__ == "__main__":
-    profile = input("Enter AWS profile name (leave blank for default): ").strip()
-    list_instances_imdsv2_status(profile=profile if profile else None)
+    selected_profile = select_aws_profile()
+    list_instances_imdsv2_status(selected_profile)
