@@ -1,39 +1,53 @@
 import os
 import pandas as pd
 from ipwhois import IPWhois
+import time
 
 # Get CSV file path from environment variable
 csv_file = os.getenv("FLOW_LOGS_CSV")
 
 if not csv_file:
-    raise EnvironmentError("Environment variable 'FLOW_LOGS_CSV' is not set.")
+    raise EnvironmentError("❌ ERROR: Environment variable 'FLOW_LOGS_CSV' is not set.")
 if not os.path.exists(csv_file):
-    raise FileNotFoundError(f"CSV file not found at: {csv_file}")
+    raise FileNotFoundError(f"❌ ERROR: CSV file not found at: {csv_file}")
 
-print(f"Processing CSV file: {csv_file}")
+print(f"📂 Loading CSV file: {csv_file}...")
 
 # Load the CSV file
 df = pd.read_csv(csv_file)
 
-# Assuming the source IP column is named 'srcaddr' (Modify if needed)
-source_ip_column = "srcaddr"
-if source_ip_column not in df.columns:
-    raise ValueError(f"The CSV file does not contain a '{source_ip_column}' column.")
+# Ensure 'message' column exists
+if "message" not in df.columns:
+    raise ValueError("❌ ERROR: The CSV file does not contain a 'message' column.")
 
-# Extract unique source IPs
-source_ips = df[source_ip_column].dropna().unique()
+print(f"✅ CSV loaded successfully. Found {len(df)} rows.")
+
+# Extract source IPs (3rd item in space-separated message)
+df["source_ip"] = df["message"].apply(lambda x: x.split()[3] if isinstance(x, str) else None)
+
+# Remove duplicates and drop empty values
+source_ips = df["source_ip"].dropna().unique()
+print(f"🔍 Extracted {len(source_ips)} unique source IPs.")
 
 # WHOIS lookup function
 def get_org_from_ip(ip):
     try:
+        print(f"🌐 Performing WHOIS lookup for {ip}...")
         obj = IPWhois(ip)
         result = obj.lookup_rdap()
-        return result.get("network", {}).get("name", "Unknown")
+        organization = result.get("network", {}).get("name", "Unknown")
+        print(f"✅ WHOIS lookup complete: {ip} → {organization}")
+        return organization
     except Exception as e:
+        print(f"⚠️ WHOIS lookup failed for {ip}: {e}")
         return f"Error: {e}"
 
-# Perform WHOIS lookups
-results = [{"IP Address": ip, "Organization": get_org_from_ip(ip)} for ip in source_ips]
+# Perform WHOIS lookups with progress
+results = []
+for idx, ip in enumerate(source_ips, start=1):
+    print(f"🔎 Processing {idx}/{len(source_ips)}: {ip}")
+    results.append({"IP Address": ip, "Organization": get_org_from_ip(ip)})
+    time.sleep(1)  # Prevent rate limiting
 
 # Convert to DataFrame
 df_results = pd.DataFrame(results)
@@ -44,4 +58,6 @@ output_csv = os.path.join(os.path.dirname(csv_file), "whois_lookup_results.csv")
 # Save results to CSV
 df_results.to_csv(output_csv, index=False)
 
-print(f"WHOIS lookup results saved to: {output_csv}")
+print("\n✅ WHOIS lookup completed!")
+print(f"📄 Results saved to: {output_csv}")
+print(f"📊 Total IPs processed: {len(source_ips)}")
