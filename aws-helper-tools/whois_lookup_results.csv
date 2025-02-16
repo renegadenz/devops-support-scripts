@@ -13,8 +13,8 @@ if not os.path.exists(csv_file):
 
 print(f"📂 Loading CSV file: {csv_file}...")
 
-# Load the CSV file
-df = pd.read_csv(csv_file)
+# Load CSV with tab or space delimiter detection
+df = pd.read_csv(csv_file, sep="\t", engine="python")
 
 # Ensure 'message' column exists
 if "message" not in df.columns:
@@ -22,8 +22,8 @@ if "message" not in df.columns:
 
 print(f"✅ CSV loaded successfully. Found {len(df)} rows.")
 
-# Extract source IPs (3rd item in space-separated message)
-df["source_ip"] = df["message"].apply(lambda x: x.split()[3] if isinstance(x, str) else None)
+# Extract source IPs (4th item in space-separated 'message' field)
+df["source_ip"] = df["message"].apply(lambda x: x.split()[3] if isinstance(x, str) and len(x.split()) > 3 else None)
 
 # Remove duplicates and drop empty values
 source_ips = df["source_ip"].dropna().unique()
