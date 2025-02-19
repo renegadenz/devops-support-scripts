@@ -80,12 +80,11 @@ def process_csv_files_in_directory(directory):
     return output_file
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python ipchecker.py <file_or_directory>")
+    path = os.getenv("IPCHECKER_PATH")
+    if not path:
+        print("Error: Please set the IPCHECKER_PATH environment variable.")
         sys.exit(1)
-
-    path = sys.argv[1]
-
+    
     if os.path.isdir(path):
         print(f"Processing directory: {path}")
         process_csv_files_in_directory(path)
