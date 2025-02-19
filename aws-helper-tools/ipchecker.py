@@ -1,5 +1,6 @@
 import csv
 import os
+import sys
 import time
 import pandas as pd
 from ipwhois import IPWhois
@@ -21,6 +22,32 @@ def get_whois_info(ip):
         }
     except Exception as e:
         return {"IP": ip, "Error": str(e)}
+
+def process_csv_and_check_whois(input_file):
+    """Process the CSV file, extract IPs, and perform WHOIS lookups."""
+    unique_ips = set()
+    
+    # Read the input file and extract unique external IPs
+    with open(input_file, "r") as file:
+        reader = csv.reader(file, delimiter="\t")
+        for row in reader:
+            if len(row) >= 5:
+                external_ip = row[3]  # Source IP (external)
+                unique_ips.add(external_ip)
+    
+    # Perform WHOIS lookup for each unique IP
+    results = []
+    for ip in unique_ips:
+        print(f"Checking WHOIS for {ip}...")
+        results.append(get_whois_info(ip))
+        time.sleep(1)  # Sleep to avoid rate limiting
+    
+    # Save results to a CSV file
+    df = pd.DataFrame(results)
+    output_file = "whois_results.csv"
+    df.to_csv(output_file, index=False)
+    print(f"WHOIS lookup completed. Results saved to {output_file}.")
+    return output_file
 
 def process_csv_files_in_directory(directory):
     """Process all CSV files in a given directory."""
@@ -52,5 +79,22 @@ def process_csv_files_in_directory(directory):
     print(f"WHOIS lookup completed. Results saved to {output_file}.")
     return output_file
 
-# Example usage:
-# process_csv_files_in_directory("/path/to/your/directory")
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: python ipchecker.py <file_or_directory>")
+        sys.exit(1)
+
+    path = sys.argv[1]
+
+    if os.path.isdir(path):
+        print(f"Processing directory: {path}")
+        process_csv_files_in_directory(path)
+    elif os.path.isfile(path):
+        print(f"Processing file: {path}")
+        process_csv_and_check_whois(path)
+    else:
+        print("Error: Invalid file or directory path")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
