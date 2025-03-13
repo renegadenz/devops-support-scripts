@@ -1,4 +1,5 @@
 IMAGE_NAME=cdk-python
+DOCKERHUB_USERNAME?=$(shell echo $$DOCKERHUB_USERNAME)
 
 build:
 	@echo "Building Docker image: $(IMAGE_NAME)"
@@ -6,8 +7,8 @@ build:
 
 push:
 	@echo "Tagging image"
-	docker tag $(IMAGE_NAME) $(IMAGE_NAME):latest
-	@echo "Pushing image to GitHub Container Registry"
+	docker tag $(IMAGE_NAME):latest $(DOCKERHUB_USERNAME)/cdk-python:latest
+	@echo "Pushing image to Docker Hub"
 	docker push $(IMAGE_NAME):latest
 
 clean:
