@@ -1,0 +1,17 @@
+IMAGE_NAME=cdk-python
+
+build:
+	@echo "Building Docker image: $(IMAGE_NAME)"
+	docker build -t $(IMAGE_NAME) .
+
+push:
+	@echo "Tagging image"
+	docker tag $(IMAGE_NAME) $(IMAGE_NAME):latest
+	@echo "Pushing image to GitHub Container Registry"
+	docker push $(IMAGE_NAME):latest
+
+clean:
+	@echo "Removing local Docker images"
+	docker rmi -f $(IMAGE_NAME) || true
+
+.PHONY: build push clean
