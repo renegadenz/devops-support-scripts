@@ -1,4 +1,4 @@
-zimport boto3
+import boto3
 import argparse
 import csv
 import tempfile
