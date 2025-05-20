@@ -1,4 +1,4 @@
-import boto3
+zimport boto3
 import argparse
 import csv
 import tempfile
@@ -23,4 +23,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--profile", required=True, help="AWS CLI profile name")
     parser.add_argument("--region", default="ap-southeast-2", help="AWS region")
-    args =
+    args = parser.parse_args()
+
+    list_codecommit_repositories(args.profile, args.region)
