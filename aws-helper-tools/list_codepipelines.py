@@ -2,7 +2,6 @@ import boto3
 import argparse
 import csv
 import tempfile
-import os
 
 def list_code_pipelines(profile, region):
     session = boto3.Session(profile_name=profile, region_name=region)
@@ -13,10 +12,16 @@ def list_code_pipelines(profile, region):
     for page in paginator.paginate():
         pipelines.extend(page['pipelines'])
 
+    fieldnames = ["name", "version", "created", "updated", "pipelineType", "executionMode"]
+
     with tempfile.NamedTemporaryFile(mode='w', newline='', suffix='.csv', delete=False, prefix='codepipeline_', dir=tempfile.gettempdir()) as temp_file:
-        writer = csv.DictWriter(temp_file, fieldnames=["name", "version"])
+        writer = csv.DictWriter(temp_file, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(pipelines)
+
+        for pipeline in pipelines:
+            filtered = {k: pipeline.get(k, "") for k in fieldnames}
+            writer.writerow(filtered)
+
         print(f"Saved {len(pipelines)} pipelines to {temp_file.name}")
 
 if __name__ == "__main__":
