@@ -1,8 +1,8 @@
-# list_codepipelines.py
 import boto3
 import argparse
+import csv
 
-def list_code_pipelines(profile, region):
+def list_code_pipelines(profile, region, output_file):
     session = boto3.Session(profile_name=profile, region_name=region)
     client = session.client('codepipeline')
 
@@ -11,14 +11,18 @@ def list_code_pipelines(profile, region):
     for page in paginator.paginate():
         pipelines.extend(page['pipelines'])
 
-    print("CodePipelines:")
-    for pipe in pipelines:
-        print(f"- {pipe['name']}")
+    with open(output_file, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=["name", "version"])
+        writer.writeheader()
+        writer.writerows(pipelines)
+
+    print(f"Saved {len(pipelines)} pipelines to {output_file}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--profile", required=True, help="AWS CLI profile name")
     parser.add_argument("--region", default="ap-southeast-2", help="AWS region")
+    parser.add_argument("--output", default="codepipelines.csv", help="Output CSV file name")
     args = parser.parse_args()
 
-    list_code_pipelines(args.profile, args.region)
+    list_code_pipelines(args.profile, args.region, args.output)
